@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: NODE_ENV=production node server/index-prod-api-only.js
     envVars:
       - key: NODE_ENV
         value: production
