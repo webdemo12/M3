@@ -18,20 +18,20 @@ export function log(message, source = "express") {
 
 export const app = express();
 
-// CORS configuration for cross-domain requests
+// Check if running in development mode
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const allowedOrigins = isDevelopment 
-  ? ['http://localhost:5000', 'http://localhost:5173']
-  : [process.env.FRONTEND_URL || 'https://lucky-draw.netlify.app'];
 
+// CORS configuration for cross-domain requests
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || isDevelopment) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  }
+  
+  // Always set CORS headers for all requests from any origin
+  res.header('Access-Control-Allow-Origin', origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
