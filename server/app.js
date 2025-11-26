@@ -25,8 +25,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
-  // Always set CORS headers for all requests from any origin
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  // For credentials to work with CORS, we must NOT use "*" - set the exact origin
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -119,4 +121,4 @@ export default async function runApp(setup) {
   }, () => {
     log(`serving on port ${port}`);
   });
-    }
+        }
