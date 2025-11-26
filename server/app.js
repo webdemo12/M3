@@ -18,6 +18,26 @@ export function log(message, source = "express") {
 
 export const app = express();
 
+// CORS configuration for cross-domain requests
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const allowedOrigins = isDevelopment 
+  ? ['http://localhost:5000', 'http://localhost:5173']
+  : [process.env.FRONTEND_URL || 'https://lucky-draw.netlify.app'];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin) || isDevelopment) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Configure session middleware BEFORE other middleware
 app.use(session({
   store: new MemoryStore({
@@ -27,10 +47,10 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: isDevelopment ? false : true,
     httpOnly: false,
+    sameSite: isDevelopment ? 'lax' : 'none',
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'lax',
   }
 }));
 
@@ -40,38 +60,6 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({ extended: false }));
-
-// CORS middleware for handling cross-origin requests
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // Allow requests from localhost and Netlify domains
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:5000',
-  ];
-  
-  // Allow any netlify.app domain or onrender.com domain
-  if (origin && (origin.includes('netlify.app') || origin.includes('onrender.com') || allowedOrigins.includes(origin))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    // For direct API calls without origin header, allow all
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Content-Type', 'application/json');
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  
-  next();
-});
 
 app.use((req, res, next) => {
   const start = Date.now();
