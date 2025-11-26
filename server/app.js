@@ -52,14 +52,18 @@ app.use((req, res, next) => {
     'http://127.0.0.1:5000',
   ];
   
-  // Allow any netlify.app domain
-  if (origin && (origin.includes('netlify.app') || allowedOrigins.includes(origin))) {
+  // Allow any netlify.app domain or onrender.com domain
+  if (origin && (origin.includes('netlify.app') || origin.includes('onrender.com') || allowedOrigins.includes(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // For direct API calls without origin header, allow all
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Content-Type', 'application/json');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
