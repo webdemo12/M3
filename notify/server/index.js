@@ -51,15 +51,37 @@ app.get('/vapidPublicKey', (req, res) => {
   res.json({ publicKey: VAPID_PUBLIC });
 });
 
+app.get('/debug/subscriptions', (req, res) => {
+  // Debug endpoint to check stored subscriptions
+  res.json({ 
+    count: subscriptions.length,
+    subscriptions: subscriptions.map(s => ({
+      endpoint: s.endpoint,
+      keys: {
+        p256dh: s.keys?.p256dh ? 'present' : 'missing',
+        auth: s.keys?.auth ? 'present' : 'missing'
+      }
+    }))
+  });
+});
+
 app.post('/push/subscribe', (req, res) => {
   const sub = req.body;
-  if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
+  console.log('📨 Received subscription:', JSON.stringify(sub, null, 2));
+  console.log('Has endpoint:', !!sub?.endpoint);
+  
+  if (!sub || !sub.endpoint) {
+    console.error('❌ Invalid subscription - missing endpoint');
+    return res.status(400).json({ error: 'Invalid subscription' });
+  }
 
   const exists = subscriptions.find(s => s.endpoint === sub.endpoint);
   if (!exists) {
     subscriptions.push(sub);
     persist();
-    console.log('Added new subscription. Total:', subscriptions.length);
+    console.log('✅ Added new subscription. Total:', subscriptions.length);
+  } else {
+    console.log('⚠️ Subscription already exists');
   }
   res.json({ success: true });
 });
