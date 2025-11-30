@@ -28,18 +28,10 @@ if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
   console.warn('VAPID keys not set. Generate VAPID keys and set VAPID_PUBLIC and VAPID_PRIVATE in env.');
 }
 
-// Ensure VAPID keys are URL-safe Base64 (no padding '=', +/ -> -_)
-function makeUrlSafeBase64(key) {
-  if (!key || typeof key !== 'string') return key;
-  return key.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-const safeVapidPublic = makeUrlSafeBase64(VAPID_PUBLIC);
-const safeVapidPrivate = makeUrlSafeBase64(VAPID_PRIVATE);
-
+// Use VAPID keys as-is (standard Base64 format, not URL-safe)
 try {
-  webpush.setVapidDetails(EMAIL, safeVapidPublic, safeVapidPrivate);
-  console.log('✅ VAPID keys configured (public key length:', safeVapidPublic.length, ')');
+  webpush.setVapidDetails(EMAIL, VAPID_PUBLIC, VAPID_PRIVATE);
+  console.log('✅ VAPID keys configured (public key length:', VAPID_PUBLIC.length, ')');
 } catch (err) {
   console.error('❌ Failed to set VAPID details:', err && err.message ? err.message : err);
   // Re-throw so startup fails loudly if keys invalid
@@ -55,8 +47,8 @@ function persist() {
 }
 
 app.get('/vapidPublicKey', (req, res) => {
-  // Return the URL-safe public key the server is using
-  res.json({ publicKey: safeVapidPublic });
+  // Return the standard Base64 public key
+  res.json({ publicKey: VAPID_PUBLIC });
 });
 
 app.post('/push/subscribe', (req, res) => {
