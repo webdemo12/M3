@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC || 'BCE58ePzJNJqHm5ltYeyqpG9144gjEXiJzVIdPIZ5aM2MLTblaPbpdQZcZYBEnguAEsQAyVn1922fnLkviMeTRc';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE || 'BMUDrjfRyeEWOhQAWdmyXjH0f62QZml6FbT-fgojilY';
-const EMAIL = process.env.ADMIN_EMAIL || 'mailto:krishnendupradhan721458@gmail.com';
+const EMAIL = process.env.ADMIN_EMAIL || 'mailto:gaytripura@gmail.com';
 
 if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
   console.warn('VAPID keys not set. Generate VAPID keys and set VAPID_PUBLIC and VAPID_PRIVATE in env.');
@@ -105,3 +105,4 @@ app.post('/push/notify', async (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Push server running on port ${PORT}`));
+
